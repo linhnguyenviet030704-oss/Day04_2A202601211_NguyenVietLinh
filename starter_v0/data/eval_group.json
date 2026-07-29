@@ -1,7 +1,125 @@
 {
-  "dataset_id": "day04_v2_research_group",
+  "dataset_id": "day04_v2_research_paper_group",
   "dataset_role": "group",
-  "description": "Template để NHÓM tự viết đúng 10 case: 5 single-turn dùng query và 5 multi-turn dùng turns. Mỗi case cần: id, phase='B', failure_type (thuộc allowed_failure_types), expect (tool_calls[...] hoặc no_tool=true), và metadata.what_it_tests. File để trống có chủ đích vì mỗi nhóm phải tự thiết kế các case này.",
-  "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "description": "Team eval cho agent research paper khoa hoc: routing dung papers, paper_text, lookup, policy, clarify va no_tool trong cac tinh huong doc/tim/tong hop paper.",
+  "allowed_failure_types": [
+    "wrong_tool",
+    "wrong_arg_value",
+    "wrong_boundary",
+    "unnecessary_tool",
+    "out_of_scope",
+    "missing_info"
+  ],
+    "cases": [
+    {
+      "id": "G01_audit_existing_sources",
+      "phase": "B",
+      "suite": "group",
+      "query": "Mình đã có 3 nguồn dưới đây. Hãy kiểm tra nguồn nào bị trùng, có URL thiếu hay không, và xem đã đủ 3 nguồn khác nhau chưa: [1] OpenAI | https://openai.com/news/a?utm_source=x | Tóm tắt A; [2] OpenAI | https://www.openai.com/news/a | Tóm tắt A; [3] Anthropic | https://www.anthropic.com/news/b | Tóm tắt B.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "source_audit", "args": {"min_unique_sources": 3, "require_urls": true, "deduplicate": true}}]},
+      "metadata": {"what_it_tests": "Có sẵn tập nguồn và cần kiểm tra cấu trúc/trùng lặp/đa dạng nguồn thì dùng source_audit; không tìm web hoặc fetch lại URL."}
+    },
+    {
+      "id": "G02_export_bibtex_existing_metadata",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tạo BibTeX từ metadata đã có sau và loại mục trùng: OpenAI, 2025, GPT research, https://openai.com/research/gpt; OpenAI, 2025, GPT research, https://openai.com/research/gpt.",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "citation_export", "args": {"style": "bibtex", "deduplicate": true}}]},
+      "metadata": {"what_it_tests": "citation_export chỉ chuyển metadata có sẵn sang định dạng trích dẫn; chọn đúng style=bibtex và deduplicate=true."}
+    },
+    {
+      "id": "G03_compare_existing_source_text",
+      "phase": "B",
+      "suite": "group",
+      "query": "So sánh các từ khóa chung và riêng giữa hai tóm tắt có sẵn: Nguồn A: 'AI agents improve software engineering workflows.' Nguồn B: 'AI agents improve research workflows and evaluation.' Chỉ trả tối đa 5 từ khóa.",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "compare_sources", "args": {"max_terms": 5}}]},
+      "metadata": {"what_it_tests": "So sánh từ vựng của ít nhất hai nguồn đã có dùng compare_sources; max_terms phải lấy đúng từ yêu cầu."}
+    },
+    {
+      "id": "G04_rss_with_explicit_feed",
+      "phase": "B",
+      "suite": "group",
+      "query": "Theo dõi feed https://hnrss.org/frontpage, chỉ lấy bài có từ khóa AI và tối đa 3 kết quả.",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "rss_search", "args": {"feed_urls": ["https://hnrss.org/frontpage"], "query": "AI", "max_results": 3}}]},
+      "metadata": {"what_it_tests": "RSS URL được nêu rõ nên dùng rss_search; truyền feed_urls, query và max_results theo contract."}
+    },
+    {
+      "id": "G05_extract_claims_from_given_text",
+      "phase": "B",
+      "suite": "group",
+      "query": "Trong đoạn văn sau, hãy đánh dấu tối đa 2 phát biểu cần kiểm chứng: 'Báo cáo công bố ngày 12/03/2026 cho biết doanh thu tăng 18%. Nhóm cũng mô tả kiến trúc mới.'",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "claim_extract", "args": {"max_claims": 2}}]},
+      "metadata": {"what_it_tests": "Có sẵn văn bản và cần tìm claim candidate thì dùng claim_extract; đây là heuristic, không phải fact-check."}
+    },
+    {
+      "id": "G06_multiturn_audit_after_collection",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Mình đã thu thập hai nguồn: OpenAI | https://openai.com/news/model | Tóm tắt phát hành model; Anthropic | https://anthropic.com/news/safety | Tóm tắt an toàn."},
+        {"role": "user", "content": "Đừng tìm thêm nguồn hoặc đọc lại URL."},
+        {"role": "user", "content": "Kiểm tra độ đầy đủ của tập nguồn hiện có, bắt buộc URL và yêu cầu ít nhất 2 nguồn khác nhau."}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "source_audit", "args": {"min_unique_sources": 2, "require_urls": true}}]},
+      "metadata": {"what_it_tests": "Giữ context evidence đã có và tôn trọng boundary: source_audit thay vì lookup/fetch khi người dùng cấm tìm hoặc đọc thêm."}
+    },
+    {
+      "id": "G07_multiturn_citations_after_metadata",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Metadata nguồn: title='Agent Evaluation', author='Nguyen Van A', date='2026-01-20', source='Lab Notes', url='https://example.org/agent-eval'."},
+        {"role": "user", "content": "Không cần tìm hay xác minh thêm thông tin tác giả."},
+        {"role": "user", "content": "Xuất trích dẫn APA từ metadata đó; giữ nguyên các mục, không loại trùng."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "citation_export", "args": {"style": "apa", "deduplicate": false}}]},
+      "metadata": {"what_it_tests": "Giữ metadata từ lịch sử hội thoại và cấu hình APA/deduplicate=false chính xác, không dùng web search để bổ sung metadata."}
+    },
+    {
+      "id": "G08_multiturn_missing_rss_url",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Mình muốn theo dõi tin AI qua RSS."},
+        {"role": "user", "content": "Chỉ lấy 5 bài mới nhất nhé."},
+        {"role": "user", "content": "Hãy chạy luôn."}
+      ],
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "text"}}]},
+      "metadata": {"what_it_tests": "rss_search không tự đoán feed URL; phải hỏi người dùng cung cấp URL RSS/Atom dù đã biết số lượng kết quả."}
+    },
+    {
+      "id": "G09_multiturn_claim_boundary",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Đoạn văn: 'Công ty công bố ngày 01/07/2026 rằng chi phí giảm 20%.'"},
+        {"role": "user", "content": "Mình chỉ cần các claim có thể kiểm chứng, không yêu cầu kiểm chứng sự thật."},
+        {"role": "user", "content": "Trích tối đa 1 claim từ đúng đoạn văn trên."}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "claim_extract", "args": {"max_claims": 1}}]},
+      "metadata": {"what_it_tests": "claim_extract chỉ trích claim candidate từ text có sẵn; không được gọi lookup/fetch để fact-check khi người dùng không yêu cầu."}
+    },
+    {
+      "id": "G10_multiturn_switch_from_similarity_to_audit",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Hai nguồn hiện có: A | https://example.org/a | AI agents support research; B | https://example.net/b | AI agents support evaluation."},
+        {"role": "user", "content": "Ban đầu mình định so sánh các từ khóa chung của chúng."},
+        {"role": "user", "content": "Đổi ý: thay vì so sánh, hãy kiểm tra hai nguồn có đủ đa dạng không; bỏ mục trùng và yêu cầu ít nhất 2 nguồn khác nhau."}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "source_audit", "args": {"min_unique_sources": 2, "deduplicate": true}}]},
+      "metadata": {"what_it_tests": "Lượt mới nhất thay đổi intent từ compare_sources sang source_audit; agent phải chọn tool mới và giữ dữ liệu nguồn đã có."}
+    }
+  ]
 }

@@ -10,6 +10,13 @@ __pycache__/
 .env.*
 !.env.example
 
+# Frontend generated output
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/coverage/
+frontend/*.log
+
 # Instructor-only — must NOT ship to the public student repo
 INTERNAL-DEMO-SCRIPT.md
 starter/

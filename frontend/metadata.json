@@ -1,0 +1,6 @@
+{
+  "name": "ScholarHub - Quản lý Nghiên cứu & Trích dẫn",
+  "description": "Giao diện quản lý tài liệu khoa học, trích dẫn tự động, xuất BibTeX/PDF và đọc ghi chú cho nhà nghiên cứu.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
