@@ -9,16 +9,20 @@ import yaml
 # The imported function names are the underlying implementations (unchanged).
 from .clarify.tool import ask_user
 from .citation_export.tool import export_citations
+from .citation_lookup.tool import lookup_citations
 from .claim_extract.tool import extract_claims
 from .compare_sources.tool import compare_sources
 from .papers.tool import arxiv_search
+from .paper_code.tool import find_paper_code
 from .paper_text.tool import get_arxiv_paper_text
+from .method_extract.tool import extract_method_sections
 from .rss_search.tool import search_rss
 from .source_audit.tool import audit_sources
 from .timeline.tool import get_user_tweets
 from .fetch.tool import read_url
 from .format.tool import render_digest
 from .policy.tool import search_company_policy
+from .rerank.tool import rerank_items
 from .social_search.tool import search_tweets
 from .send.tool import send_telegram
 from .lookup.tool import web_search
@@ -40,6 +44,10 @@ TOOL_FUNCTIONS = {
     "policy": search_company_policy,
     "papers": arxiv_search,
     "paper_text": get_arxiv_paper_text,
+    "paper_code": find_paper_code,
+    "citation_lookup": lookup_citations,
+    "method_extract": extract_method_sections,
+    "rerank": rerank_items,
     "source_audit": audit_sources,
     "citation_export": export_citations,
     "compare_sources": compare_sources,
