@@ -7,7 +7,6 @@
 # If you rename a tool, keep the name in sync across:
 #   this file  ->  tools/__init__.py (TOOL_FUNCTIONS)  ->  data/eval_base.json + data/eval_research_extension.json
 tools:
-  # ---------------- Core tools ----------------
   - name: clarify
     description: "Gửi một câu hỏi cho người dùng."
     parameters:
@@ -116,3 +115,153 @@ tools:
         max_pages: {type: integer, default: 5, description: "Số trang"}
         max_chars: {type: integer, default: 8000, description: "Số ký tự"}
       required: [arxiv_url]
+
+  # ---------------- Tool chất lượng nghiên cứu do nhóm tự viết ----------------
+  - name: source_audit
+    description: "Chỉ dùng khi đã có sẵn các nguồn và người dùng yêu cầu loại bỏ mục trùng, kiểm tra độ đầy đủ của trích dẫn hoặc đo mức độ đa dạng nguồn. Tool này chỉ kiểm tra cấu trúc tập bằng chứng; không tìm kiếm, đọc URL, xếp hạng độ tin cậy hoặc chứng minh thông tin đúng hay sai."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          description: "Danh sách nguồn đã có sẵn cần kiểm tra."
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+              date: {type: string}
+        min_unique_sources: {type: integer, minimum: 1, maximum: 20, default: 2, description: "Số nhãn nguồn hoặc tên miền URL khác nhau tối thiểu; khác nhau không đồng nghĩa với độc lập."}
+        require_urls: {type: boolean, default: true, description: "Báo lỗi đối với các mục không có URL HTTP(S) hợp lệ."}
+        deduplicate: {type: boolean, default: true, description: "Loại các mục trùng URL hoặc tiêu đề khỏi audited_items."}
+      required: [items]
+
+  - name: citation_export
+    description: "Chỉ dùng để chuyển metadata của các nguồn đã thu thập thành trích dẫn Markdown, kiểu APA hoặc BibTeX. Tool này không tìm nguồn, bổ sung metadata còn thiếu, lưu file hoặc xác minh tuyên bố."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          description: "Metadata của các nguồn đã có sẵn cần tạo trích dẫn."
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              author: {type: string}
+              authors:
+                type: array
+                items: {type: string}
+              date: {type: string}
+              published: {type: string}
+              year: {type: string}
+              doi: {type: string}
+              journal: {type: string}
+              publisher: {type: string}
+        style: {type: string, enum: [markdown, apa, bibtex], default: "markdown", description: "Định dạng trích dẫn đầu ra."}
+        deduplicate: {type: boolean, default: true, description: "Loại trích dẫn trùng URL, DOI hoặc tiêu đề sau khi chuẩn hóa."}
+      required: [items]
+
+  - name: compare_sources
+    description: "Chỉ dùng khi đã có sẵn ít nhất hai nguồn và người dùng yêu cầu so sánh phần từ ngữ trùng nhau hoặc chủ đề riêng của từng nguồn. Độ tương đồng chỉ là bằng chứng từ vựng, không chứng minh đồng thuận ngữ nghĩa, phát hiện mâu thuẫn, xếp hạng độ tin cậy hoặc kiểm chứng sự thật."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          minItems: 2
+          description: "Ít nhất hai nguồn đã có sẵn, chứa tiêu đề và phần tóm tắt hoặc văn bản."
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+              content: {type: string}
+              text: {type: string}
+        max_terms: {type: integer, minimum: 1, maximum: 50, default: 10, description: "Số từ khóa chung hoặc riêng tối đa được trả về."}
+      required: [items]
+
+  - name: rss_search
+    description: "Lấy và tìm bài từ các URL RSS/Atom cụ thể. Chỉ dùng để theo dõi feed; không dùng thay công cụ tìm kiếm web tổng quát và không tự đoán URL feed. Nếu thiếu URL feed, hãy gọi clarify."
+    parameters:
+      type: object
+      properties:
+        feed_urls:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: {type: string}
+          description: "Các URL RSS hoặc Atom dùng HTTP(S) được cung cấp rõ ràng bởi người dùng hoặc ngữ cảnh hội thoại."
+        query: {type: string, default: "", description: "Từ khóa tùy chọn để lọc theo tiêu đề và phần tóm tắt của bài."}
+        max_results: {type: integer, minimum: 1, maximum: 25, default: 10, description: "Tổng số bài tối đa được trả về."}
+      required: [feed_urls]
+
+  - name: claim_extract
+    description: "Chỉ dùng khi đã có sẵn văn bản và người dùng yêu cầu xác định các phát biểu có thể kiểm tra, số liệu, ngày tháng hoặc dấu hiệu quy nguồn. Kết quả chỉ là ứng viên được trích bằng heuristic, không phải sự thật đã được xác minh."
+    parameters:
+      type: object
+      properties:
+        text: {type: string, description: "Văn bản đã có sẵn dùng để trích xuất các ứng viên tuyên bố."}
+        max_claims: {type: integer, minimum: 1, maximum: 50, default: 10, description: "Số ứng viên tuyên bố tối đa được trả về."}
+      required: [text]
+  - name: paper_code
+    description: "Search public GitHub repositories related to a scientific paper. Use when the user asks for official code, implementation, reproduction repo, GitHub repo, or code for a paper/method. Do not use for citation or paper text."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Method, benchmark, task, or extra code-search terms."}
+        paper_title: {type: string, default: "", description: "Paper title when known."}
+        arxiv_id: {type: string, default: "", description: "arXiv ID when known."}
+        max_results: {type: integer, default: 5, description: "Maximum repositories."}
+      required: []
+
+  - name: citation_lookup
+    description: "Look up paper metadata, citation count, references count, influential citations, external IDs, or BibTeX via Semantic Scholar. Use paper_id when known; use query for title search. Do not use for reading PDF text."
+    parameters:
+      type: object
+      properties:
+        paper_id: {type: string, default: "", description: "arXiv ID, DOI, CorpusId, or Semantic Scholar paper ID."}
+        query: {type: string, default: "", description: "Paper title or search query when paper_id is unknown."}
+        max_results: {type: integer, default: 5, description: "Maximum papers when searching by query."}
+      required: []
+
+  - name: method_extract
+    description: "Extract method, approach, model, experiment, evaluation, result, or limitation sections from paper text already available in context. Use after paper_text or user-provided text. It does not fetch PDFs."
+    parameters:
+      type: object
+      properties:
+        text: {type: string, default: "", description: "Paper text to inspect."}
+        section_keywords:
+          type: array
+          default: []
+          items: {type: string}
+          description: "Section keywords to extract; defaults cover method/experiment/result/limitation."
+        max_chars: {type: integer, default: 4000, description: "Maximum characters per section."}
+      required: [text]
+
+  - name: rerank
+    description: "Rerank an existing list of items against a research query. Use after papers, lookup, paper_code, or paper_text results when the user asks to prioritize, choose most relevant, filter top-k, or rank. It does not fetch new data."
+    parameters:
+      type: object
+      properties:
+        query: {type: string, default: "", description: "Research need used for ranking."}
+        items:
+          type: array
+          default: []
+          description: "Existing items to rerank."
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+              section: {type: string}
+        top_k: {type: integer, default: 5, description: "Number of ranked items to return."}
+      required: [query, items]
