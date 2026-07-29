@@ -3,9 +3,13 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+ROOT = Path(__file__).parent
+sys.path.insert(0, str(ROOT))
 
 from agent import ResearchAgent
 from env_loader import load_lab_env
@@ -14,7 +18,6 @@ from tools import TOOL_FUNCTIONS, load_tool_declarations, to_openai_tools
 from versioning import artifact_version_dict, build_artifact_version
 
 
-ROOT = Path(__file__).parent
 ARTIFACTS_DIR = ROOT / "artifacts"
 DATA_DIR = ROOT / "data"
 load_lab_env(ROOT)
@@ -264,7 +267,7 @@ def main() -> None:
     parser.add_argument("--phase", choices=["B"], default="B")
     parser.add_argument("--suite", choices=["base", "group", "cross", "extension"], default="base", help="Run label saved to JSON; does not filter --eval-cases.")
     parser.add_argument("--version", required=True)
-    parser.add_argument("--provider", choices=["openai", "openrouter", "anthropic", "gemini"], required=True)
+    parser.add_argument("--provider", choices=["openai", "openrouter", "anthropic", "gemini", "groq"], required=True)
     parser.add_argument("--model", default=None)
     parser.add_argument("--system-prompt", type=Path, default=ARTIFACTS_DIR / "system_prompt.md")
     parser.add_argument("--tools", type=Path, default=ARTIFACTS_DIR / "tools.yaml")

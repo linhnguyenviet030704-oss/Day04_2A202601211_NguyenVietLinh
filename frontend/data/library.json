@@ -1,0 +1,202 @@
+{
+  "papers": [
+    {
+      "id": "paper-1",
+      "title": "Attention Is All You Need: Modern Architecture for Sequence Modeling",
+      "authors": [
+        "Ashish Vaswani",
+        "Noam Shazeer",
+        "Niki Parmar",
+        "Jakob Uszkoreit",
+        "Llion Jones",
+        "Aidan N. Gomez",
+        "Lukasz Kaiser",
+        "Illia Polosukhin"
+      ],
+      "journal": "Advances in Neural Information Processing Systems (NeurIPS)",
+      "year": 2017,
+      "volume": "30",
+      "pages": "5998–6008",
+      "doi": "10.48550/arXiv.1706.03762",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "publisher": "Curran Associates, Inc.",
+      "citationsCount": 112450,
+      "abstract": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks in an encoder-decoder configuration. We propose the Transformer, a architecture based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train.",
+      "fullText": "1. Giới thiệu (Introduction)\nRecurrent neural networks (RNN), đặc biệt là Long Short-Term Memory (LSTM) và Gated Recurrent Neural Network (GRU), đã thiết lập các cách tiếp cận đỉnh cao trong các bài toán chuỗi như Dịch máy (Machine Translation) và Mô hình hóa Ngôn ngữ (Language Modeling). Tuy nhiên, tính chất tính toán tuần tự của RNN tạo ra rào cản lớn đối với việc song song hóa trên các phần cứng hiện đại như GPU/TPU khi xử lý câu dài.\n\n2. Kiến trúc Transformer (The Transformer Architecture)\nTransformer loại bỏ hoàn toàn cơ chế tuần tự Recurrence và dựa hoàn toàn vào cơ chế Tự chú ý (Self-Attention) để tính toán biểu diễn cho cả câu cùng một lúc.\n- Multi-Head Attention: Cho phép mô hình đồng thời chú ý đến thông tin từ các không gian biểu diễn con khác nhau tại các vị trí khác nhau.\n- Positional Encoding: Do không có RNN để ghi nhận thứ tự, chúng tôi thêm mã hóa vị trí dựa trên hàm Sine và Cosine vào các vectơ đầu vào.\n\n3. Kết quả Thực nghiệm (Experimental Results)\nTrên bộ dữ liệu WMT 2014 English-to-German translation, mô hình Transformer (Big) đạt điểm BLEU 28.4, vượt qua các mô hình ensemble tốt nhất lúc bấy giờ hơn 2.0 điểm BLEU, đồng thời thời gian huấn luyện giảm xuống chỉ bằng 1/4 so với các kiến trúc trước đó.",
+      "tags": [
+        "Transformer",
+        "Deep Learning",
+        "NLP",
+        "Attention"
+      ],
+      "collectionId": "col-1",
+      "status": "completed",
+      "starred": true,
+      "rating": 5,
+      "dateAdded": "2026-06-10T08:30:00Z",
+      "lastModified": "2026-07-20T14:15:00Z",
+      "notes": "Bài báo nền tảng tuyệt đối cho toàn bộ kỷ nguyên LLM hiện đại. Cần chú ý kỹ cơ chế Scaled Dot-Product Attention và công thức Positional Encoding.",
+      "bibtex": "@article{vaswani2017attention,\n  author    = {Vaswani, Ashish and Shazeer, Noam and Parmar, Niki and Uszkoreit, Jakob and Jones, Llion and Gomez, Aidan N and Kaiser, Lukasz and Polosukhin, Illia},\n  title     = {Attention is all you need},\n  journal   = {Advances in Neural Information Processing Systems},\n  volume    = {30},\n  pages     = {5998--6008},\n  year      = {2017},\n  doi       = {10.48550/arXiv.1706.03762}\n}",
+      "highlights": [
+        {
+          "id": "hl-1",
+          "text": "We propose the Transformer, a model architecture eschewing recurrence and relying entirely on an attention mechanism to draw global dependencies between input and output.",
+          "comment": "Cốt lõi đột phá: Thay thế hoàn toàn rào cản tính toán tuần tự của RNN/LSTM.",
+          "color": "yellow",
+          "pageNumber": 1,
+          "createdAt": "2026-06-11T09:00:00Z"
+        },
+        {
+          "id": "hl-2",
+          "text": "Multi-Head Attention allows the model to jointly attend to information from different representation subspaces at different positions.",
+          "comment": "Giúp mô hình nắm bắt đa dạng sắc thái ngữ nghĩa của từ trong các ngữ cảnh khác nhau.",
+          "color": "blue",
+          "pageNumber": 3,
+          "createdAt": "2026-06-11T09:20:00Z"
+        }
+      ]
+    },
+    {
+      "id": "paper-2",
+      "title": "Phát triển Hệ thống Trích dẫn Khoa học Tự động dựa trên Mô hình Ngôn ngữ Lớn cho Nghiên cứu Việt Nam",
+      "authors": [
+        "Nguyễn Văn Linh",
+        "Lê Thị Thu Trâm",
+        "Tran Hoang Nam"
+      ],
+      "journal": "Tạp chí Khoa học & Công nghệ Quốc gia Việt Nam (VJST)",
+      "year": 2025,
+      "volume": "67",
+      "issue": "4",
+      "pages": "112–125",
+      "doi": "10.53683/vjst.2025.04.112",
+      "publisher": "Bộ Khoa học và Công nghệ",
+      "citationsCount": 42,
+      "abstract": "Nghiên cứu này trình bày một giải pháp toàn diện cho việc tự động trích xuất thông tin, định dạng trích dẫn tài liệu khoa học chuẩn mực (BibTeX, APA, IEEE) ứng dụng mô hình AI tiếng Việt. Kết quả thực nghiệm trên 15,000 bài báo tiếng Việt và tiếng Anh đạt độ chính xác F1-score 98.4% trong việc trích xuất DOI và thông tin tác giả.",
+      "fullText": "1. Đặt vấn đề (Introduction)\nViệc quản lý tài liệu tham khảo và trích dẫn khoa học chính xác là thách thức tiêu tốn nhiều thời gian đối với các nhà nghiên cứu Việt Nam. Việc thiếu chuẩn hóa cơ sở dữ liệu số hóa tiếng Việt thường dẫn đến sai sót khi quy đổi sang các định dạng tiêu chuẩn quốc tế như BibTeX, APA 7 hay IEEE.\n\n2. Phương pháp nghiên cứu (Methodology)\nChúng tôi phát triển đường ống xử lý NLP kết hợp quy tắc ngữ pháp chuyên biệt cho tên tiếng Việt (Họ - Tên lót - Tên) và mô hình ngôn ngữ được tinh chỉnh (fine-tuned) trên bộ dữ liệu nghiên cứu liên ngành.\n- Mô hình nhận diện thực thể tên (NER) cho Tác giả & Tạp chí.\n- Trình phân tích cú pháp tự động sinh mã BibTeX tuân thủ tiêu chuẩn ISO 690.\n\n3. Kết quả & Đánh giá (Results & Discussion)\nThử nghiệm trên 15,000 tài liệu thuộc các ngành Khoa học Máy tính, Y sinh và Kinh tế học cho thấy hệ thống rút ngắn 85% thời gian tạo danh mục tài liệu tham khảo và đạt F1-Score 98.4% về độ chính xác trích dẫn.",
+      "tags": [
+        "Vietnamese NLP",
+        "Citation Mining",
+        "Bibliometrics",
+        "Scholar Tools"
+      ],
+      "collectionId": "col-1",
+      "status": "reading",
+      "starred": true,
+      "rating": 5,
+      "dateAdded": "2026-07-01T10:00:00Z",
+      "lastModified": "2026-07-28T12:00:00Z",
+      "notes": "Phương pháp phân tích tên tiếng Việt rất đáng chú ý. Cần tham khảo cấu trúc pipeline cho công cụ ScholarHub.",
+      "bibtex": "@article{nguyen2025trichdan,\n  author    = {Nguy{\\tilde{e}}n, V{\\breve{a}}n Linh and L{\\hat{e}}, Th{\\d{i}} Thu Tr{\\hat{a}}m and Tran, Hoang Nam},\n  title     = {Ph{\\acute{a}}t tri\\^{e}n H\\^{e} th\\^{o} me S\\^{i}nh Tr{\\acute{i}}ch d\\^{a} n Khoa h\\dots c T\\dots d\\dots ng},\n  journal   = {T\\dots p ch\\acute{i} Khoa h\\dots c \\& C\\dots ng ngh\\dots Qu\\dots c gia Vi\\^{e}t Nam},\n  volume    = {67},\n  number    = {4},\n  pages     = {112--125},\n  year      = {2025},\n  doi       = {10.53683/vjst.2025.04.112}\n}",
+      "highlights": [
+        {
+          "id": "hl-3",
+          "text": "Đường ống xử lý NLP kết hợp quy tắc ngữ pháp chuyên biệt cho tên tiếng Việt giúp rút ngắn 85% thời gian tạo tài liệu tham khảo.",
+          "comment": "Dữ liệu thực nghiệm thực tế tại Việt Nam rất thuyết phục.",
+          "color": "green",
+          "pageNumber": 2,
+          "createdAt": "2026-07-05T15:10:00Z"
+        }
+      ]
+    },
+    {
+      "id": "paper-3",
+      "title": "Quantum Supremacy using Programmable Superconducting Processors",
+      "authors": [
+        "Frank Arute",
+        "Kunal Arya",
+        "Ryan Babbush",
+        "Dave Bacon",
+        "Joseph C. Bardin",
+        "John M. Martinis"
+      ],
+      "journal": "Nature",
+      "year": 2019,
+      "volume": "574",
+      "issue": "7779",
+      "pages": "505–510",
+      "doi": "10.1038/s41586-019-1666-5",
+      "publisher": "Nature Publishing Group",
+      "citationsCount": 4890,
+      "abstract": "The promise of quantum computers is that certain computational tasks might be executed exponentially faster on a quantum processor than on a classical processor. We demonstrate quantum supremacy using a programmable superconducting processor named Sycamore with 53 qubits.",
+      "fullText": "1. Overview\nThe promise of quantum computers is that certain computational tasks might be executed exponentially faster on a quantum processor than on a classical processor.\n\n2. Sycamore Architecture\nOur Sycamore processor consists of a two-dimensional array of 54 transmon qubits, where each qubit is tunably coupled to four nearest neighbors. One qubit was non-functional, leaving 53 operational qubits.\n\n3. Sampling Task\nWe chose a random circuit sampling task. Sampling the output of random quantum circuits is a benchmark computation that requires exponential classical effort as qubit count and circuit depth grow. The classical supercomputer Summit would take 10,000 years to sample, whereas Sycamore executed it in 200 seconds.",
+      "tags": [
+        "Quantum Computing",
+        "Superconducting",
+        "Sycamore",
+        "Physics"
+      ],
+      "collectionId": "col-2",
+      "status": "completed",
+      "starred": false,
+      "rating": 4,
+      "dateAdded": "2026-05-15T11:00:00Z",
+      "lastModified": "2026-05-20T16:00:00Z",
+      "notes": "Cột mốc lịch sử trong điện toán lượng tử. So sánh thời gian 200 giây vs 10,000 năm của siêu máy tính Summit.",
+      "bibtex": "@article{arute2019quantum,\n  author    = {Arute, Frank and Arya, Kunal and Babbush, Ryan and Bacon, Dave and Bardin, Joseph C and Martinis, John M},\n  title     = {Quantum supremacy using a programmable superconducting processor},\n  journal   = {Nature},\n  volume    = {574},\n  number    = {7779},\n  pages     = {505--510},\n  year      = {2019},\n  doi       = {10.1038/s41586-019-1666-5}\n}",
+      "highlights": []
+    },
+    {
+      "id": "paper-4",
+      "title": "High-Resolution Downscaling Climate Models for Urban Heat Island Mitigation in Coastal Vietnam",
+      "authors": [
+        "Mai Van Khiem",
+        "Nguyen Thi Thanh",
+        "David L. Higgins",
+        "Linh Nguyen"
+      ],
+      "journal": "Journal of Climate & Applied Meteorology",
+      "year": 2024,
+      "volume": "42",
+      "issue": "2",
+      "pages": "201–218",
+      "doi": "10.1016/j.jclim.2024.02.018",
+      "publisher": "Elsevier",
+      "citationsCount": 88,
+      "abstract": "This study presents a nested regional climate modeling framework (WRF-Urban) downscaled to 1km resolution to assess urban heat island (UHI) intensity across Da Nang and Ho Chi Minh City under RCP8.5 emissions scenarios.",
+      "fullText": "1. Introduction\nRapid urbanization in tropical coastal cities of Vietnam has intensified urban heat island (UHI) effects, exacerbating heat stress risks for local communities.\n\n2. Downscaling Methodology\nWe utilized the WRF 4.3 model coupled with the Single-Layer Urban Canopy Model (SLUCM). Global GFS driver data were dynamically downscaled through 3 nested domains (27km -> 9km -> 3km -> 1km).\n\n3. Key Findings\nProjections indicate mean annual maximum temperatures will rise by 2.4°C by 2050, with urban centers experiencing night-time temperatures up to 4.8°C higher than surrounding rural green spaces.",
+      "tags": [
+        "Climate Change",
+        "WRF Model",
+        "Urban Heat Island",
+        "Vietnam Environment"
+      ],
+      "collectionId": "col-3",
+      "status": "unread",
+      "starred": true,
+      "rating": 5,
+      "dateAdded": "2026-07-10T14:20:00Z",
+      "lastModified": "2026-07-10T14:20:00Z",
+      "notes": "Rất bổ ích cho đề tài nghiên cứu thích ứng biến đổi khí hậu đô thị ven biển.",
+      "bibtex": "@article{khiem2024climate,\n  author    = {Khiem, Mai Van and Thanh, Nguyen Thi and Higgins, David L and Nguyen, Linh},\n  title     = {High-Resolution Downscaling Climate Models for Urban Heat Island Mitigation in Coastal Vietnam},\n  journal   = {Journal of Climate \\& Applied Meteorology},\n  volume    = {42},\n  number    = {2},\n  pages     = {201--218},\n  year      = {2024},\n  doi       = {10.1016/j.jclim.2024.02.018}\n}",
+      "highlights": []
+    }
+  ],
+  "collections": [
+    {
+      "id": "col-1",
+      "name": "Trí tuệ Nhân tạo & Mạng Nơ-ron",
+      "description": "Các công trình nền tảng về Transformer, Large Language Models và Agentic AI",
+      "color": "#3b82f6",
+      "icon": "Brain",
+      "paperCount": 3
+    },
+    {
+      "id": "col-2",
+      "name": "Máy tính Lượng tử & Mật mã",
+      "description": "Các bài báo về thuật toán Shor, Quantum Supremacy và Post-Quantum Cryptography",
+      "color": "#8b5cf6",
+      "icon": "Cpu",
+      "paperCount": 2
+    },
+    {
+      "id": "col-3",
+      "name": "Khoa học Khí hậu & Đổi mới",
+      "description": "Nghiên cứu về mô hình dự báo biến đổi khí hậu khu vực Đông Nam Á",
+      "color": "#10b981",
+      "icon": "Globe",
+      "paperCount": 2
+    }
+  ],
+  "updatedAt": "2026-07-29T03:45:03.747Z"
+}
