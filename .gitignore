@@ -9,7 +9,7 @@ __pycache__/
 .env
 .env.*
 !.env.example
-
+*.env.example
 # Instructor-only — must NOT ship to the public student repo
 INTERNAL-DEMO-SCRIPT.md
 starter/
