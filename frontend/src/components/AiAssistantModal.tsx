@@ -13,9 +13,11 @@ import {
   Filter,
   Tag,
   ArrowDownToLine,
-  Bookmark
+  Bookmark,
+  Wrench
 } from 'lucide-react';
 import { Paper } from '../types';
+import { STARTER_TOOL_UI_ACTIONS, StarterToolName, lookupCitations } from '../utils/starterTools';
 
 interface AiAssistantModalProps {
   papers: Paper[];
@@ -28,7 +30,7 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({
   onClose,
   onAddPaper,
 }) => {
-  const [activeTab, setActiveTab] = useState<'arxiv' | 'gemini'>('arxiv');
+  const [activeTab, setActiveTab] = useState<'arxiv' | 'gemini' | 'tools'>('arxiv');
 
   // arXiv Agent Search State
   const [arxivQuery, setArxivQuery] = useState('');
@@ -43,6 +45,8 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({
   const [topicInput, setTopicInput] = useState('');
   const [isGeminiLoading, setIsGeminiLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [runningTool, setRunningTool] = useState<StarterToolName | null>(null);
+  const [toolOutput, setToolOutput] = useState<any>(null);
 
   // Execute arXiv Internet Search via AI Agent
   const handleArxivSearch = async (e: React.FormEvent) => {
@@ -129,16 +133,8 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({
     setRecommendations([]);
 
     try {
-      const agentRes = await fetch('/api/agent/run', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tool: 'citation_lookup',
-          args: { query: topicInput.trim(), max_results: 4 },
-        }),
-      });
-      const agentData = await agentRes.json();
-      const items = agentData?.result?.result?.items;
+      const agentData = await lookupCitations({ query: topicInput.trim(), max_results: 4 });
+      const items = (agentData?.result?.result as { items?: any[] } | undefined)?.items;
       if (Array.isArray(items) && items.length > 0) {
         setRecommendations(items.map((item: any) => ({
           title: item.title,
@@ -163,6 +159,18 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({
       console.error('Error suggesting references:', err);
     } finally {
       setIsGeminiLoading(false);
+    }
+  };
+
+  const handleRunStarterTool = async (action: typeof STARTER_TOOL_UI_ACTIONS[number]) => {
+    setRunningTool(action.tool);
+    setToolOutput(null);
+    try {
+      setToolOutput(await action.run(action.args));
+    } catch (err: any) {
+      setToolOutput({ success: false, tool: action.tool, error: err?.message || String(err) });
+    } finally {
+      setRunningTool(null);
     }
   };
 
@@ -216,6 +224,17 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({
           >
             <BookOpen className="w-4 h-4 text-emerald-600" />
             <span>Gợi ý Công trình Kinh điển Gemini AI</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('tools')}
+            className={`flex-1 py-2.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 ${
+              activeTab === 'tools'
+                ? 'bg-white text-slate-900 shadow-xs border border-slate-200/60 font-bold'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Wrench className="w-4 h-4 text-slate-700" />
+            <span>Starter Tools</span>
           </button>
         </div>
 
@@ -467,6 +486,44 @@ export const AiAssistantModal: React.FC<AiAssistantModalProps> = ({
                   Nhập chủ đề bất kỳ để nhận danh sách các công trình kinh điển do Gemini đề xuất.
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'tools' && (
+          <div className="flex-1 min-h-0 overflow-y-auto bg-slate-50 p-5 space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {STARTER_TOOL_UI_ACTIONS.map((action) => {
+                const isRunning = runningTool === action.tool;
+                return (
+                  <button
+                    key={action.tool}
+                    type="button"
+                    onClick={() => handleRunStarterTool(action)}
+                    disabled={runningTool !== null}
+                    className="text-left p-3 bg-white border border-slate-200 rounded-lg hover:border-indigo-300 hover:shadow-xs disabled:opacity-60"
+                    title={`${action.webFunction} -> ${action.tool}`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-bold text-slate-900">{action.label}</span>
+                      <span className="text-[10px] font-mono text-slate-500">{action.tool}</span>
+                    </div>
+                    <p className="mt-1 text-[11px] leading-snug text-slate-500">{action.description}</p>
+                    <div className="mt-2 text-[10px] font-mono text-indigo-700">
+                      {isRunning ? 'running...' : action.webFunction}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="bg-slate-950 text-slate-100 border border-slate-800 rounded-lg overflow-hidden">
+              <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider bg-slate-900 border-b border-slate-800">
+                Tool Result
+              </div>
+              <pre className="p-3 text-[11px] leading-relaxed overflow-auto max-h-72 whitespace-pre-wrap">
+                {toolOutput ? JSON.stringify(toolOutput, null, 2) : 'Bấm một tool để chạy smoke test.'}
+              </pre>
             </div>
           </div>
         )}
