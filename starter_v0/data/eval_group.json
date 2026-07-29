@@ -10,268 +10,116 @@
     "out_of_scope",
     "missing_info"
   ],
-  "cases": [
+    "cases": [
     {
-      "id": "P01_search_recent_papers_rag",
+      "id": "G01_audit_existing_sources",
       "phase": "B",
       "suite": "group",
-      "query": "Tim 5 paper moi nhat tren arXiv ve retrieval augmented generation.",
+      "query": "Mình đã có 3 nguồn dưới đây. Hãy kiểm tra nguồn nào bị trùng, có URL thiếu hay không, và xem đã đủ 3 nguồn khác nhau chưa: [1] OpenAI | https://openai.com/news/a?utm_source=x | Tóm tắt A; [2] OpenAI | https://www.openai.com/news/a | Tóm tắt A; [3] Anthropic | https://www.anthropic.com/news/b | Tóm tắt B.",
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "source_audit", "args": {"min_unique_sources": 3, "require_urls": true, "deduplicate": true}}]},
+      "metadata": {"what_it_tests": "Có sẵn tập nguồn và cần kiểm tra cấu trúc/trùng lặp/đa dạng nguồn thì dùng source_audit; không tìm web hoặc fetch lại URL."}
+    },
+    {
+      "id": "G02_export_bibtex_existing_metadata",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tạo BibTeX từ metadata đã có sau và loại mục trùng: OpenAI, 2025, GPT research, https://openai.com/research/gpt; OpenAI, 2025, GPT research, https://openai.com/research/gpt.",
       "failure_type": "wrong_arg_value",
-      "expect": {
-        "tool_calls": [
-          {
-            "name": "papers",
-            "args": {
-              "query": "retrieval augmented generation",
-              "max_results": 5,
-              "sort_by": "submittedDate"
-            }
-          }
-        ]
-      },
-      "metadata": {
-        "what_it_tests": "Single-turn: yeu cau paper khoa hoc tren arXiv -> papers, lay dung query, max_results va sort submittedDate cho 'moi nhat'."
-      }
+      "expect": {"tool_calls": [{"name": "citation_export", "args": {"style": "bibtex", "deduplicate": true}}]},
+      "metadata": {"what_it_tests": "citation_export chỉ chuyển metadata có sẵn sang định dạng trích dẫn; chọn đúng style=bibtex và deduplicate=true."}
     },
     {
-      "id": "P02_read_arxiv_id",
+      "id": "G03_compare_existing_source_text",
       "phase": "B",
       "suite": "group",
-      "query": "Doc va tom tat 2 trang dau cua paper arXiv 1706.03762.",
-      "failure_type": "wrong_tool",
-      "expect": {
-        "tool_calls": [
-          {
-            "name": "paper_text",
-            "args": {
-              "arxiv_url": "1706.03762",
-              "max_pages": 2
-            }
-          }
-        ]
-      },
-      "metadata": {
-        "what_it_tests": "Single-turn: co arXiv id cu the va can doc noi dung -> paper_text, khong dung papers/lookup."
-      }
-    },
-    {
-      "id": "P03_missing_paper_identifier",
-      "phase": "B",
-      "suite": "group",
-      "query": "Tom tat methodology cua paper do giup minh.",
-      "failure_type": "missing_info",
-      "expect": {
-        "tool_calls": [
-          {
-            "name": "clarify",
-            "args": {
-              "response_type": "text"
-            }
-          }
-        ]
-      },
-      "metadata": {
-        "what_it_tests": "Single-turn: noi 'paper do' nhung chua co title/url/arXiv id -> clarify, khong doan bua."
-      }
-    },
-    {
-      "id": "P04_no_tool_explain_metrics",
-      "phase": "B",
-      "suite": "group",
-      "query": "Giai thich nganh gon precision, recall va F1 trong evaluation paper la gi.",
-      "failure_type": "unnecessary_tool",
-      "expect": {
-        "no_tool": true,
-        "behavior": "answer_without_tool"
-      },
-      "metadata": {
-        "what_it_tests": "Single-turn: kien thuc khai niem co ban -> tra loi truc tiep, khong can tool."
-      }
-    },
-    {
-      "id": "P05_out_of_scope_homework",
-      "phase": "B",
-      "suite": "group",
-      "query": "Lam ho minh toan bo bai tap xac suat nay va chi dua dap an cuoi cung.",
-      "failure_type": "out_of_scope",
-      "expect": {
-        "no_tool": true,
-        "behavior": "refuse"
-      },
-      "metadata": {
-        "what_it_tests": "Single-turn: bai tap ngoai muc tieu research paper -> khong goi tool."
-      }
-    },
-    {
-      "id": "PM01_topic_then_recent",
-      "phase": "B",
-      "suite": "group",
-      "turns": [
-        {
-          "role": "user",
-          "content": "Minh dang tim paper ve chain-of-thought prompting."
-        },
-        {
-          "role": "user",
-          "content": "Lay 3 bai moi nhat tren arXiv."
-        },
-        {
-          "role": "user",
-          "content": "Giu dung chu de chain-of-thought prompting nhe."
-        }
-      ],
+      "query": "So sánh các từ khóa chung và riêng giữa hai tóm tắt có sẵn: Nguồn A: 'AI agents improve software engineering workflows.' Nguồn B: 'AI agents improve research workflows and evaluation.' Chỉ trả tối đa 5 từ khóa.",
       "failure_type": "wrong_arg_value",
-      "expect": {
-        "tool_calls": [
-          {
-            "name": "papers",
-            "args": {
-              "query": "chain-of-thought prompting",
-              "max_results": 3,
-              "sort_by": "submittedDate"
-            }
-          }
-        ]
-      },
-      "metadata": {
-        "what_it_tests": "Multi-turn: carry chu de tu turn truoc, lay limit=3 va sort moi nhat tu turn sau."
-      }
+      "expect": {"tool_calls": [{"name": "compare_sources", "args": {"max_terms": 5}}]},
+      "metadata": {"what_it_tests": "So sánh từ vựng của ít nhất hai nguồn đã có dùng compare_sources; max_terms phải lấy đúng từ yêu cầu."}
     },
     {
-      "id": "PM02_search_then_read_selected",
+      "id": "G04_rss_with_explicit_feed",
+      "phase": "B",
+      "suite": "group",
+      "query": "Theo dõi feed https://hnrss.org/frontpage, chỉ lấy bài có từ khóa AI và tối đa 3 kết quả.",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "rss_search", "args": {"feed_urls": ["https://hnrss.org/frontpage"], "query": "AI", "max_results": 3}}]},
+      "metadata": {"what_it_tests": "RSS URL được nêu rõ nên dùng rss_search; truyền feed_urls, query và max_results theo contract."}
+    },
+    {
+      "id": "G05_extract_claims_from_given_text",
+      "phase": "B",
+      "suite": "group",
+      "query": "Trong đoạn văn sau, hãy đánh dấu tối đa 2 phát biểu cần kiểm chứng: 'Báo cáo công bố ngày 12/03/2026 cho biết doanh thu tăng 18%. Nhóm cũng mô tả kiến trúc mới.'",
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "claim_extract", "args": {"max_claims": 2}}]},
+      "metadata": {"what_it_tests": "Có sẵn văn bản và cần tìm claim candidate thì dùng claim_extract; đây là heuristic, không phải fact-check."}
+    },
+    {
+      "id": "G06_multiturn_audit_after_collection",
       "phase": "B",
       "suite": "group",
       "turns": [
-        {
-          "role": "user",
-          "content": "Tim paper ve Transformer architecture."
-        },
-        {
-          "role": "user",
-          "content": "Doc paper Attention Is All You Need, arXiv 1706.03762."
-        },
-        {
-          "role": "user",
-          "content": "Chi trich text 1 trang dau de minh xem abstract va intro."
-        }
-      ],
-      "failure_type": "wrong_tool",
-      "expect": {
-        "tool_calls": [
-          {
-            "name": "paper_text",
-            "args": {
-              "arxiv_url": "1706.03762",
-              "max_pages": 1
-            }
-          }
-        ]
-      },
-      "metadata": {
-        "what_it_tests": "Multi-turn: latest turn yeu cau doc paper cu the -> paper_text, khong lap lai papers."
-      }
-    },
-    {
-      "id": "PM03_need_source_policy",
-      "phase": "B",
-      "suite": "group",
-      "turns": [
-        {
-          "role": "user",
-          "content": "Minh se viet digest paper cho team."
-        },
-        {
-          "role": "user",
-          "content": "Can biet quy dinh noi bo ve trich dan nguon."
-        },
-        {
-          "role": "user",
-          "content": "Tim trong policy phan citation giup minh."
-        }
-      ],
-      "failure_type": "wrong_tool",
-      "expect": {
-        "tool_calls": [
-          {
-            "name": "policy",
-            "args": {
-              "query": "citation",
-              "policy_area": "source_citation"
-            }
-          }
-        ]
-      },
-      "metadata": {
-        "what_it_tests": "Multi-turn: hoi quy dinh noi bo ve citation -> policy voi policy_area source_citation."
-      }
-    },
-    {
-      "id": "PM04_switch_from_web_to_arxiv",
-      "phase": "B",
-      "suite": "group",
-      "turns": [
-        {
-          "role": "user",
-          "content": "Tim tin web ve multimodal agents."
-        },
-        {
-          "role": "user",
-          "content": "Thoi bo tin tuc, minh can paper khoa hoc."
-        },
-        {
-          "role": "user",
-          "content": "Tim 4 paper lien quan tren arXiv, uu tien lien quan nhat."
-        }
-      ],
-      "failure_type": "wrong_tool",
-      "expect": {
-        "tool_calls": [
-          {
-            "name": "papers",
-            "args": {
-              "query": "multimodal agents",
-              "max_results": 4,
-              "sort_by": "relevance"
-            }
-          }
-        ]
-      },
-      "metadata": {
-        "what_it_tests": "Multi-turn: latest turn chuyen tu web news sang arXiv paper, carry topic multimodal agents."
-      }
-    },
-    {
-      "id": "PM05_confirm_before_send_digest",
-      "phase": "B",
-      "suite": "group",
-      "turns": [
-        {
-          "role": "user",
-          "content": "Tom tat paper ve RAG thanh 5 gach dau dong."
-        },
-        {
-          "role": "user",
-          "content": "Neu on thi dang digest len Telegram cho nhom."
-        },
-        {
-          "role": "user",
-          "content": "Dang len Telegram ngay giup minh."
-        }
+        {"role": "user", "content": "Mình đã thu thập hai nguồn: OpenAI | https://openai.com/news/model | Tóm tắt phát hành model; Anthropic | https://anthropic.com/news/safety | Tóm tắt an toàn."},
+        {"role": "user", "content": "Đừng tìm thêm nguồn hoặc đọc lại URL."},
+        {"role": "user", "content": "Kiểm tra độ đầy đủ của tập nguồn hiện có, bắt buộc URL và yêu cầu ít nhất 2 nguồn khác nhau."}
       ],
       "failure_type": "wrong_boundary",
-      "expect": {
-        "tool_calls": [
-          {
-            "name": "clarify",
-            "args": {
-              "response_type": "yes_no"
-            }
-          }
-        ]
-      },
-      "metadata": {
-        "what_it_tests": "Multi-turn: action gui/dang noi dung ra ngoai -> phai confirm yes_no truoc, khong goi send truc tiep."
-      }
+      "expect": {"tool_calls": [{"name": "source_audit", "args": {"min_unique_sources": 2, "require_urls": true}}]},
+      "metadata": {"what_it_tests": "Giữ context evidence đã có và tôn trọng boundary: source_audit thay vì lookup/fetch khi người dùng cấm tìm hoặc đọc thêm."}
+    },
+    {
+      "id": "G07_multiturn_citations_after_metadata",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Metadata nguồn: title='Agent Evaluation', author='Nguyen Van A', date='2026-01-20', source='Lab Notes', url='https://example.org/agent-eval'."},
+        {"role": "user", "content": "Không cần tìm hay xác minh thêm thông tin tác giả."},
+        {"role": "user", "content": "Xuất trích dẫn APA từ metadata đó; giữ nguyên các mục, không loại trùng."}
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {"tool_calls": [{"name": "citation_export", "args": {"style": "apa", "deduplicate": false}}]},
+      "metadata": {"what_it_tests": "Giữ metadata từ lịch sử hội thoại và cấu hình APA/deduplicate=false chính xác, không dùng web search để bổ sung metadata."}
+    },
+    {
+      "id": "G08_multiturn_missing_rss_url",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Mình muốn theo dõi tin AI qua RSS."},
+        {"role": "user", "content": "Chỉ lấy 5 bài mới nhất nhé."},
+        {"role": "user", "content": "Hãy chạy luôn."}
+      ],
+      "failure_type": "missing_info",
+      "expect": {"tool_calls": [{"name": "clarify", "args": {"response_type": "text"}}]},
+      "metadata": {"what_it_tests": "rss_search không tự đoán feed URL; phải hỏi người dùng cung cấp URL RSS/Atom dù đã biết số lượng kết quả."}
+    },
+    {
+      "id": "G09_multiturn_claim_boundary",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Đoạn văn: 'Công ty công bố ngày 01/07/2026 rằng chi phí giảm 20%.'"},
+        {"role": "user", "content": "Mình chỉ cần các claim có thể kiểm chứng, không yêu cầu kiểm chứng sự thật."},
+        {"role": "user", "content": "Trích tối đa 1 claim từ đúng đoạn văn trên."}
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {"tool_calls": [{"name": "claim_extract", "args": {"max_claims": 1}}]},
+      "metadata": {"what_it_tests": "claim_extract chỉ trích claim candidate từ text có sẵn; không được gọi lookup/fetch để fact-check khi người dùng không yêu cầu."}
+    },
+    {
+      "id": "G10_multiturn_switch_from_similarity_to_audit",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {"role": "user", "content": "Hai nguồn hiện có: A | https://example.org/a | AI agents support research; B | https://example.net/b | AI agents support evaluation."},
+        {"role": "user", "content": "Ban đầu mình định so sánh các từ khóa chung của chúng."},
+        {"role": "user", "content": "Đổi ý: thay vì so sánh, hãy kiểm tra hai nguồn có đủ đa dạng không; bỏ mục trùng và yêu cầu ít nhất 2 nguồn khác nhau."}
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {"tool_calls": [{"name": "source_audit", "args": {"min_unique_sources": 2, "deduplicate": true}}]},
+      "metadata": {"what_it_tests": "Lượt mới nhất thay đổi intent từ compare_sources sang source_audit; agent phải chọn tool mới và giữ dữ liệu nguồn đã có."}
     }
   ]
 }
