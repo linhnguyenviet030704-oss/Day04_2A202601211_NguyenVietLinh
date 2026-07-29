@@ -116,3 +116,98 @@ tools:
         max_pages: {type: integer, default: 5, description: "Số trang"}
         max_chars: {type: integer, default: 8000, description: "Số ký tự"}
       required: [arxiv_url]
+
+  # ---------------- Tool chất lượng nghiên cứu do nhóm tự viết ----------------
+  - name: source_audit
+    description: "Chỉ dùng khi đã có sẵn các nguồn và người dùng yêu cầu loại bỏ mục trùng, kiểm tra độ đầy đủ của trích dẫn hoặc đo mức độ đa dạng nguồn. Tool này chỉ kiểm tra cấu trúc tập bằng chứng; không tìm kiếm, đọc URL, xếp hạng độ tin cậy hoặc chứng minh thông tin đúng hay sai."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          description: "Danh sách nguồn đã có sẵn cần kiểm tra."
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+              date: {type: string}
+        min_unique_sources: {type: integer, minimum: 1, maximum: 20, default: 2, description: "Số nhãn nguồn hoặc tên miền URL khác nhau tối thiểu; khác nhau không đồng nghĩa với độc lập."}
+        require_urls: {type: boolean, default: true, description: "Báo lỗi đối với các mục không có URL HTTP(S) hợp lệ."}
+        deduplicate: {type: boolean, default: true, description: "Loại các mục trùng URL hoặc tiêu đề khỏi audited_items."}
+      required: [items]
+
+  - name: citation_export
+    description: "Chỉ dùng để chuyển metadata của các nguồn đã thu thập thành trích dẫn Markdown, kiểu APA hoặc BibTeX. Tool này không tìm nguồn, bổ sung metadata còn thiếu, lưu file hoặc xác minh tuyên bố."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          description: "Metadata của các nguồn đã có sẵn cần tạo trích dẫn."
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              author: {type: string}
+              authors:
+                type: array
+                items: {type: string}
+              date: {type: string}
+              published: {type: string}
+              year: {type: string}
+              doi: {type: string}
+              journal: {type: string}
+              publisher: {type: string}
+        style: {type: string, enum: [markdown, apa, bibtex], default: "markdown", description: "Định dạng trích dẫn đầu ra."}
+        deduplicate: {type: boolean, default: true, description: "Loại trích dẫn trùng URL, DOI hoặc tiêu đề sau khi chuẩn hóa."}
+      required: [items]
+
+  - name: compare_sources
+    description: "Chỉ dùng khi đã có sẵn ít nhất hai nguồn và người dùng yêu cầu so sánh phần từ ngữ trùng nhau hoặc chủ đề riêng của từng nguồn. Độ tương đồng chỉ là bằng chứng từ vựng, không chứng minh đồng thuận ngữ nghĩa, phát hiện mâu thuẫn, xếp hạng độ tin cậy hoặc kiểm chứng sự thật."
+    parameters:
+      type: object
+      properties:
+        items:
+          type: array
+          minItems: 2
+          description: "Ít nhất hai nguồn đã có sẵn, chứa tiêu đề và phần tóm tắt hoặc văn bản."
+          items:
+            type: object
+            properties:
+              title: {type: string}
+              url: {type: string}
+              source: {type: string}
+              summary: {type: string}
+              content: {type: string}
+              text: {type: string}
+        max_terms: {type: integer, minimum: 1, maximum: 50, default: 10, description: "Số từ khóa chung hoặc riêng tối đa được trả về."}
+      required: [items]
+
+  - name: rss_search
+    description: "Lấy và tìm bài từ các URL RSS/Atom cụ thể. Chỉ dùng để theo dõi feed; không dùng thay công cụ tìm kiếm web tổng quát và không tự đoán URL feed. Nếu thiếu URL feed, hãy gọi clarify."
+    parameters:
+      type: object
+      properties:
+        feed_urls:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: {type: string}
+          description: "Các URL RSS hoặc Atom dùng HTTP(S) được cung cấp rõ ràng bởi người dùng hoặc ngữ cảnh hội thoại."
+        query: {type: string, default: "", description: "Từ khóa tùy chọn để lọc theo tiêu đề và phần tóm tắt của bài."}
+        max_results: {type: integer, minimum: 1, maximum: 25, default: 10, description: "Tổng số bài tối đa được trả về."}
+      required: [feed_urls]
+
+  - name: claim_extract
+    description: "Chỉ dùng khi đã có sẵn văn bản và người dùng yêu cầu xác định các phát biểu có thể kiểm tra, số liệu, ngày tháng hoặc dấu hiệu quy nguồn. Kết quả chỉ là ứng viên được trích bằng heuristic, không phải sự thật đã được xác minh."
+    parameters:
+      type: object
+      properties:
+        text: {type: string, description: "Văn bản đã có sẵn dùng để trích xuất các ứng viên tuyên bố."}
+        max_claims: {type: integer, minimum: 1, maximum: 50, default: 10, description: "Số ứng viên tuyên bố tối đa được trả về."}
+      required: [text]
